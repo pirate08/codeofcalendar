@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { FaArrowCircleLeft, FaArrowCircleRight } from 'react-icons/fa';
-import Link from 'next/link';
+import Sidebar from './Sidebar';
 
 function getDatesOfMonths(year, month) {
   const startDate = new Date(year, month, 1);
@@ -10,6 +10,12 @@ function getDatesOfMonths(year, month) {
 
   const dates = [];
   const currentDate = new Date(startDate);
+
+  const startDay = startDate.getDay();
+
+  for (let i = 0; i < (startDay === 0 ? 6 : startDay - 1); i++) {
+    dates.push(null);
+  }
 
   while (currentDate <= endDate) {
     dates.push(new Date(currentDate));
@@ -21,37 +27,38 @@ function getDatesOfMonths(year, month) {
 const DayName = [
   {
     id: 1,
-    name: 'Monday',
+    name: 'Mon',
   },
   {
     id: 2,
-    name: 'Tuesday',
+    name: 'Tue',
   },
   {
     id: 3,
-    name: 'Wednesday',
+    name: 'Wed',
   },
   {
     id: 4,
-    name: 'Thursday',
+    name: 'Thurs',
   },
   {
     id: 5,
-    name: 'Friday',
+    name: 'Fri',
   },
   {
     id: 6,
-    name: 'Saturday',
+    name: 'Sat',
   },
   {
     id: 7,
-    name: 'Sunday',
+    name: 'Sun',
   },
 ];
 
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [allDatesofMonths, setAllDatesofMonths] = useState([]);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
   useEffect(() => {
     // setSelectedDate(new Date());
@@ -66,6 +73,11 @@ const Calendar = () => {
     month: 'long',
   });
   const currentYear = selectedDate.getFullYear();
+
+  // --togglebar to show the sidebar--
+  const togglebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
 
   // --Previous Button--
   const prevMonth = () => {
@@ -88,23 +100,27 @@ const Calendar = () => {
   // console.log(today);
 
   return (
-    <div>
+    <div className='overflow-x-auto'>
       {/* --Header-- */}
-      <div className='py-5 px-20 flex items-center shadow-xl'>
-        <Image src='/logo.png' width={100} height={100} alt='Logo...' />
-        {/* --Text-- */}
-        <h1 className='text-3xl font-bold text-white'>Calendar</h1>
+      <div className='py-5 px-4 md:px-20 flex flex-col md:flex-row items-center shadow-xl'>
+        <div className='mb-4 md:mb-0'>
+          <Image src='/logo.png' width={100} height={100} alt='Logo...' />
+        </div>
+        <div className='flex-1 text-center md:text-left'>
+          <h1 className='text-3xl font-bold text-white mb-2 md:mb-0'>
+            Calendar
+          </h1>
+        </div>
       </div>
       {/* --Body Section-- */}
-      <div className='flex flex-col items-center justify-center h-screen px-10'>
-        <div className='bg-white w-full p-4 mb-5 rounded-lg shadow-md flex justify-around items-center'>
-          <div>
-            <Link href='./EventSidebar'>
-              {' '}
-              <button className='rounded-md text-white px-4 py-1 bg-gradient-to-r from-violet-400 to-fuchsia-500 cursor-pointer hover:scale-105 duration-200'>
-                Add Events
-              </button>
-            </Link>
+      <div className='flex flex-col items-center justify-center h-screen px-4 md:px-10'>
+        <div className='bg-white w-full p-5 mb-5 rounded-lg shadow-md flex flex-col md:flex-row justify-between items-center'>
+          <div className='mb-4 md:mb-0'>
+            <button
+              className='rounded-md text-white px-4 py-2 md:py-1 bg-gradient-to-r from-violet-400 to-fuchsia-500 cursor-pointer hover:scale-105 duration-200'
+              onClick={togglebar}>
+              Add Events
+            </button>
           </div>
           <div>
             <span className='text-xl'>{`${currentMonth} ${currentYear}`}</span>
@@ -126,7 +142,9 @@ const Calendar = () => {
           {/* --DayName-- */}
           {DayName.map((day) => {
             return (
-              <span key={day.id} className='text-center text-lg'>
+              <span
+                key={day.id}
+                className='flex items-center justify-center text-sm md:text-xl'>
                 {day.name}
               </span>
             );
@@ -136,16 +154,19 @@ const Calendar = () => {
             <p
               key={index}
               className={`border p-2 rounded-full text-center ${
+                date &&
                 date.getDate() === new Date().getDate() &&
                 date.getMonth() === new Date().getMonth()
                   ? 'text-white bg-gradient-to-r from-violet-400 to-fuchsia-500 cursor-pointer hover:scale-105 duration-200'
                   : 'hover:bg-gray-200 cursor-pointer'
               }`}>
-              {date.getDate()}
+              {date && date.getDate()}
             </p>
           ))}
         </div>
       </div>
+      {/* --Showing the sidebar here-- */}
+      {isSidebarVisible && <Sidebar />}
     </div>
   );
 };
